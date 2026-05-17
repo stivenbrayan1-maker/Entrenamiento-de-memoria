@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>NeuroRehab Studio - Enterprise Edition</title>
+    <style>
+        :root { 
+            --accent-primary: #4f46e5; 
+            --accent-secondary: #06b6d4; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --warning: #f59e0b; 
+            --bg-main: #0f172a; 
+            --bg-panel: rgba(30, 41, 59, 0.7);
+            --border-ui: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body { 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, var(--bg-main) 100%); 
+            margin: 0; 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+            color: var(--text-main); 
+        }
+        
+        aside { 
+            width: 300px; 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(20px);
+            padding: 30px; 
+            border-right: 1px solid var(--border-ui); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            overflow-y: auto; 
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #a5b4fc, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -0.05em;
+        }
+
+        .card-apoyo { 
+            background: var(--bg-panel); 
+            padding: 16px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border-ui);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            font-size: 0.9rem; 
+            line-height: 1.5;
+        }
+        .card-apoyo b { color: var(--accent-secondary); }
+
+        main { 
+            flex: 1; 
+            padding: 40px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            position: relative; 
+            overflow-y: auto; 
+        }
+        .hidden { display: none !important; }
+
+        #menu { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            width: 100%; 
+            max-width: 1100px; 
+            min-height: 85vh; 
+        }
+        #menu h1 { 
+            font-size: 3.8rem; 
+            margin-bottom: 30px; 
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            background: linear-gradient(to bottom right, #ffffff 30%, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .difficulty-box { 
+            background: var(--bg-panel); 
+            backdrop-filter: blur(16px);
+            padding: 35px; 
+            border-radius: 24px; 
+            border: 1px solid var(--border-ui);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); 
+            margin-bottom: 35px; 
+            width: 100%; 
+            box-sizing: border-box;
+            text-align: center; 
+        }
+        .grid-niveles { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 12px; 
+            margin: 25px 0; 
+        }
+        
+        .btn-lvl { 
+            padding: 16px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            color: var(--text-main); 
+            font-size: 1rem; 
+            background: rgba(255,255,255,0.03);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .btn-lvl:hover, .btn-lvl.active { 
+            background: var(--accent-primary);
+            border-color: #818cf8;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-principal { 
+            padding: 22px 40px; 
+            margin: 10px; 
+            border: none; 
+            border-radius: 16px; 
+            color: white; 
+            font-weight: 700; 
+            cursor: pointer; 
+            width: 520px; 
+            font-size: 1.3rem; 
+            transition: all 0.2s ease; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            letter-spacing: -0.02em;
+        }
+        .btn-principal:hover { 
+            transform: translateY(-3px); 
+            filter: brightness(1.1);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        #display-objetivos { display: flex; gap: 20px; margin: 30px; font-size: 5.5rem; flex-wrap: wrap; justify-content: center; }
+        .grid-dinamico { display: grid; gap: 12px; margin-top: 25px; justify-content: center; width: 100%; max-width: 1200px; }
+        
+        .emoji-box { 
+            width: 85px; 
+            height: 85px; 
+            background: rgba(30, 41, 59, 0.8); 
+            border: 2px solid var(--border-ui); 
+            border-radius: 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 2.5rem; 
+            cursor: pointer; 
+            user-select: none; 
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .emoji-box:hover { 
+            transform: scale(1.08); 
+            border-color: var(--accent-secondary); 
+            background: rgba(30, 41, 59, 1);
+        }
+        .correct { background: var(--success) !important; border-color: #34d399 !important; color: white; transform: scale(0.96); }
+        .wrong { background: var(--danger) !important; border-color: #f87171 !important; animation: shake 0.3s ease-in-out; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* LIENZO RUNNER CON SOL Y NUBES */
+        #runner-container { 
+            position: relative; 
+            width: 95%; 
+            max-width: 1100px; 
+            height: 480px; 
+            background: linear-gradient(to bottom, #1e3a8a 0%, #3b82f6 50%, #93c5fd 100%); 
+            border-bottom: 8px solid #475569; 
+            overflow: hidden; 
+            margin-top: 20px; 
+            user-select: none; 
+            border-radius: 24px; 
+            border: 1px solid var(--border-ui);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.4);
+        }
+        
+        .decoracion-paisaje {
+            position: absolute;
+            user-select: none;
+            z-index: 1;
+        }
+        .sol-paisaje { font-size: 5.5rem; top: 25px; right: 60px; filter: drop-shadow(0 0 20px #f59e0b); }
+        .nube-paisaje { font-size: 4rem; opacity: 0.85; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+
+        #pig-runner { 
+            position: absolute; 
+            bottom: 0; 
+            left: 110px; 
+            font-size: 80px; 
+            width: 90px; 
+            height: 90px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 5; 
+        }
+        
+        .jump { animation: jumpAnim 0.68s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        @keyframes jumpAnim { 0%, 100% { bottom: 0px; } 50% { bottom: 270px; } }
+        
+        .actor-movil { position: absolute; display: flex; align-items: center; justify-content: center; animation: moveLinear 1.5s linear infinite; }
+        .obs-suelo { bottom: 0; font-size: 70px; width: 75px; height: 75px; z-index: 4; }
+        .obs-aire { bottom: 175px; font-size: 65px; width: 70px; height: 70px; z-index: 4; }
+
+        .speed-normal { animation-duration: 1.6s; }
+        .speed-fast { animation-duration: 1.2s; }
+        .speed-diablo { animation-duration: 0.95s; }
+
+        @keyframes moveLinear { from { left: 100%; } to { left: -130px; } }
+        
+        .hurt { animation: blink 0.12s linear 4; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        
+        .heal-flash { animation: greenBlink 0.3s ease-out 1; }
+        @keyframes greenBlink { 50% { background-color: rgba(16, 185, 129, 0.3); } }
+
+        .btn-back {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-ui);
+            padding: 14px 28px;
+            font-size: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-back:hover {
+            color: var(--text-main);
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div class="brand-title">NeuroRehab Studio</div>
+        <div class="card-apoyo">
+            <b>Estado del Sistema:</b>
+            <p id="nota-texto" style="margin: 5px 0 0 0;">Esperando inicialización.</p>
+        </div>
+        <div class="card-apoyo">
+            <b>Protocolo (M. Diferida):</b><br>
+            🌵 Salta obstáculos.<br>
+            ❤️ Recoge en suelo sin saltar.<br>
+            🐝 / 🦇 No saltes (fase aérea).
+        </div>
+        <div class="card-apoyo">
+            <b>Protocolo (Búsq. Visual):</b><br>
+            ¡Máxima saturación! Localice solo el puerco tradicional <b>🐖</b>. Ignore los decenas de distractores de mimetismo rosa y piel.
+        </div>
+    </aside>
+
+    <main>
+        <div id="menu">
+            <h1>Panel de Estimulación Cognitiva</h1>
+            
+            <div class="difficulty-box">
+                <span style="font-size: 1.2rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Grado de Dificultad Global (1 - 10)</span>
+                
+                <div class="grid-niveles">
+                    <button class="btn-lvl active" id="btn-l1" onclick="seleccionarNivel(1)">LVL 1</button>
+                    <button class="btn-lvl" id="btn-l2" onclick="seleccionarNivel(2)">LVL 2</button>
+                    <button class="btn-lvl" id="btn-l3" onclick="seleccionarNivel(3)">LVL 3</button>
+                    <button class="btn-lvl" id="btn-l4" onclick="seleccionarNivel(4)">LVL 4</button>
+                    <button class="btn-lvl" id="btn-l5" onclick="seleccionarNivel(5)">LVL 5</button>
+                    <button class="btn-lvl" id="btn-l6" onclick="seleccionarNivel(6)">LVL 6</button>
+                    <button class="btn-lvl" id="btn-l7" onclick="seleccionarNivel(7)">LVL 7</button>
+                    <button class="btn-lvl" id="btn-l8" onclick="seleccionarNivel(8)">LVL 8</button>
+                    <button class="btn-lvl" id="btn-l9" onclick="seleccionarNivel(9)">LVL 9</button>
+                    <button class="btn-lvl" id="btn-l10" onclick="seleccionarNivel(10)">LVL 10</button>
+                </div>
+                
+                <p id="diff-selected" style="margin: 5px 0 0 0; font-weight:700; color: var(--accent-secondary); font-size: 1.4rem;">Nivel Activo: 1</p>
+            </div>
+
+            <button class="btn-principal" style="background: linear-gradient(135deg, var(--accent-primary) 0%, #312e81 100%); border: 1px solid #6366f1;" onclick="iniciarPrueba('memoria')">🧠 Iniciar Memoria Diferida</button>
+            <button class="btn-principal" style="background: linear-gradient(135deg, var(--accent-secondary) 0%, #0891b2 100%); border: 1px solid #22d3ee;" onclick="iniciarPrueba('busqueda')">🎯 Iniciar Búsqueda Visual</button>
+        </div>
+
+        <div id="pantalla-juego" class="hidden" style="width: 100%;">
+            <h2 id="titulo-tarea" style="text-align: center; font-size: 2.2rem; font-weight: 800; margin-top: 0; letter-spacing: -0.03em;"></h2>
+            <div id="contenido-juego" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
+            <br>
+            <div style="text-align: center; width: 100%;">
+                <button class="btn-back" onclick="location.reload()">🎛️ Abortar y Volver al Menú</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let nivelActual = 1;
+
+        const bancoEmojis = [
+            '🐓','🐈','🐕','🐤','🪷','🌳','🌵','🍀','🐄','🐂','🐏','🍎','🍏','🚕','🏐','🏠','🔔','🔑','💎',
+            '🦁','🐯','🐼','🐨','🦊','🐰','🐵','🐸','🍉','🍇','🍓','🍍','🍕','🍔','🍟','🚀','🛸','🎈','🎨',
+            '🎸','🎺','🛹','🚲','⚓','⛺','⛲','🧲','🧸','🎲','🃏','🔮','🧿','🪐','🌈','⚡','🔥','💧','🍄','🍁'
+        ];
+
+        // CAMUFLAJE CROMÁTICO EXTREMO (Elementos del mismo color o forma similar para inducir errores de escaneo)
+        const bancoMimetismoRosa = [
+            '🐷','🐽','🌸','🧠','🫁','🫀','🩷','🦀','🍧','🧼','🦄','🐙','🦩','🦐','🩰','🎟️','🎀','🍥','🍡','🍨','🌺','🌷'
+        ];
+
+        const mapaNivelesMemoria = {
+            1:  { obj: 1, dist: 12, cuadricula: 6,  cols: 3, exp: 4000,  speed: 'speed-normal', inhibicion: false },
+            2:  { obj: 2, dist: 15, cuadricula: 6,  cols: 3, exp: 4500,  speed: 'speed-normal', inhibicion: false },
+            3:  { obj: 3, dist: 18, cuadricula: 12, cols: 4, exp: 5500,  speed: 'speed-normal', inhibicion: false },
+            4:  { obj: 4, dist: 22, cuadricula: 12, cols: 4, exp: 6500,  speed: 'speed-fast',   inhibicion: false },
+            5:  { obj: 5, dist: 25, cuadricula: 16, cols: 4, exp: 7500,  speed: 'speed-fast',   inhibicion: false },
+            6:  { obj: 6, dist: 30, cuadricula: 20, cols: 5, exp: 8500,  speed: 'speed-fast',   inhibicion: false },
+            7:  { obj: 7, dist: 35, cuadricula: 24, cols: 6, exp: 9500,  speed: 'speed-fast',   inhibicion: true },
+            8:  { obj: 8, dist: 40, cuadricula: 24, cols: 6, exp: 11000, speed: 'speed-fast',   inhibicion: true },
+            9:  { obj: 9, dist: 50, cuadricula: 30, cols: 6, exp: 12000, speed: 'speed-diablo', inhibicion: true },
+            10: { obj: 10,dist: 60, cuadricula: 36, cols: 6, exp: 13000, speed: 'speed-diablo', inhibicion: true }
+        };
+
+        // CANTIDAD EXPONENCIAL DE OBJETOS Y CAMUFLAJE GRADUAL (De 12 a 100 Casillas simultáneas)
+        const mapaNivelesBusqueda = {
+            1:  { tiempo: 60, cuadricula: 12, cols: 4,  mimetismo: 0.15, prob: 0.85 },
+            2:  { tiempo: 60, cuadricula: 16, cols: 4,  mimetismo: 0.25, prob: 0.82 },
+            3:  { tiempo: 60, cuadricula: 24, cols: 6,  mimetismo: 0.35, prob: 0.80 },
+            4:  { tiempo: 55, cuadricula: 30, cols: 6,  mimetismo: 0.50, prob: 0.78 },
+            5:  { tiempo: 50, cuadricula: 36, cols: 6,  mimetismo: 0.65, prob: 0.75 },
+            6:  { tiempo: 45, cuadricula: 42, cols: 7,  mimetismo: 0.75, prob: 0.75 },
+            7:  { tiempo: 40, cuadricula: 56, cols: 8,  mimetismo: 0.85, prob: 0.72 }, 
+            8:  { tiempo: 35, cuadricula: 72, cols: 9,  mimetismo: 0.95, prob: 0.70 },
+            9:  { tiempo: 30, cuadricula: 90, cols: 10, mimetismo: 1.00, prob: 0.68 },
+            10: { tiempo: 25, cuadricula: 100,cols: 10, mimetismo: 1.00, prob: 0.65 } // 100 Casillas saturadas en 25 segundos
+        };
+
+        let objetivos = [];
+        let vidas = 3;
+        let invulnerable = false;
+        let juegoActivo = false;
+        let loopColisionId = null;
+        let intervaloTiempoId = null;
+        let cronometroBusquedaId = null;
+        let totalCerditosAEncontrar = 0;
+        let cerditosEncontrados = 0;
+
+        function seleccionarNivel(num) {
+            nivelActual = num;
+            document.querySelectorAll('.btn-lvl').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-l' + num).classList.add('active');
+            
+            const p = document.getElementById('diff-selected');
+            p.innerText = "Nivel Activo: " + num;
+            
+            if(num <= 3) p.style.color = 'var(--success)';
+            else if(num <= 6) p.style.color = 'var(--warning)';
+            else if(num <= 8) p.style.color = 'var(--danger)';
+            else p.style.color = '#a855f7';
+        }
+
+        function iniciarPrueba(tipo) {
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('pantalla-juego').classList.remove('hidden');
+
+            if(tipo === 'memoria') {
+                const c = mapaNivelesMemoria[nivelActual];
+                objetivos = [];
+                let poolDisponibles = [...bancoEmojis];
+                while(objetivos.length < c.obj && poolDisponibles.length > 0) {
+                    let index = Math.floor(Math.random() * poolDisponibles.length);
+                    objetivos.push(poolDisponibles.splice(index, 1)[0]);
+                }
+                
+                document.getElementById('titulo-tarea').innerText = `Memorice los objetivos del Nivel ${nivelActual}:`;
+                document.getElementById('contenido-juego').innerHTML = `<div id="display-objetivos">${objetivos.map(o => `<span>${o}</span>`).join('')}</div>`;
+                
+                setTimeout(() => faseInterferencia(c), c.exp);
+            } else {
+                const c = mapaNivelesBusqueda[nivelActual];
+                iniciarBusquedaVisual(c, nivelActual);
+            }
+        }
+
+        function faseInterferencia(c) {
+            vidas = 3;
+            invulnerable = false;
+            juegoActivo = true;
+            let timeLeft = c.dist;
+
+            document.getElementById('titulo-tarea').innerText = `Módulo Transitorio de Interferencia (Lvl ${nivelActual})`;
+            
+            let instruccionesRunner = c.inhibicion 
+                ? `Fase de Inhibición Directa: Evite 🐝 y 🦇 en salto. Capture ❤️ estático. Esquive 🌵.`
+                : `Estímulo de mantenimiento de atención: Esquive obstáculos terrestres 🌵.`;
+
+            document.getElementById('contenido-juego').innerHTML = `
+                <div style="display: flex; gap: 40px; justify-content: center; font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; width:100%;">
+                    <div style="color:var(--accent-secondary)">Cronómetro: <span id="timer" style="color:white;">${timeLeft}</span>s</div>
+                    <div style="color:var(--danger)">Vidas: <span id="lives-display">❤️❤️❤️</span></div>
+                </div>
+                <p style="text-align:center; margin: 0 0 20px 0; font-size: 1.1rem; max-width:750px; color:var(--text-muted); font-weight:500;">${instruccionesRunner}</p>
+                <div id="runner-container" onclick="saltar()">
+                    <!-- PAISAJE EXCLUSIVO: SOL Y NUBES -->
+                    <div class="decoracion-paisaje sol-paisaje">☀️</div>
+                    <div class="decoracion-paisaje nube-paisaje" style="top: 40px; left: 80px;">☁️</div>
+                    <div class="decoracion-paisaje nube-paisaje" style="top: 80px; left: 450px; transform: scale(0.8);">☁️</div>
+                    <div class="decoracion-paisaje nube-paisaje" style="top: 30px; left: 750px; transform: scale(1.1);">☁️</div>
+                    
+                    <div id="pig-runner">🐖</div>
+                    <div id="dinamic-obs" class="actor-movil obs-suelo ${c.speed}">🌵</div>
+                </div>
+            `;
+
+            window.addEventListener('keydown', manejarTecladoSaltar);
+
+            const obstaculoElemento = document.getElementById('dinamic-obs');
+            if (c.inhibicion && obstaculoElemento) {
+                obstaculoElemento.addEventListener('animationiteration', () => {
+                    const tipos = ['🌵', '🌵', '🐝', '🦇', '❤️'];
+                    const elegido = tipos[Math.floor(Math.random() * tipos.length)];
+                    obstaculoElemento.innerText = elegido;
+                    
+                    if (elegido === '🌵' || elegido === '❤️') {
+                        obstaculoElemento.className = `actor-movil obs-suelo ${c.speed}`;
+                    } else {
+                        obstaculoElemento.className = `actor-movil obs-aire ${c.speed}`;
+                    }
+                });
+            }
+
+            intervaloTiempoId = setInterval(() => {
+                timeLeft--;
+                if(document.getElementById('timer')) document.getElementById('timer').innerText = timeLeft;
+                if(timeLeft <= 0) { 
+                    finalizarJuegoRunner();
+                    faseRecon(c); 
+                }
+            }, 1000);
+
+            loopColisionId = requestAnimationFrame(detectarColision);
+        }
+
+        function manejarTecladoSaltar(event) {
+            if(juegoActivo) {
+                event.preventDefault();
+                saltar();
+            }
+        }
+
+        function saltar() {
+            const p = document.getElementById('pig-runner');
+            if(p && !p.classList.contains('jump') && juegoActivo) {
+                p.classList.add('jump');
+                setTimeout(() => { if (p) p.classList.remove('jump'); }, 680);
+            }
+        }
+
+        function detectarColision() {
+            if (!juegoActivo) return;
+
+            const pig = document.getElementById('pig-runner');
+            const obs = document.getElementById('dinamic-obs');
+            const displayVidas = document.getElementById('lives-display');
+            const contenedor = document.getElementById('runner-container');
+
+            if (pig && obs) {
+                const pigRect = pig.getBoundingClientRect();
+                const obsRect = obs.getBoundingClientRect();
+                const tipoObstaculo = obs.innerText;
+
+                const toleranciaX = 35;
+                const toleranciaY = 20;
+
+                const colisionX = (pigRect.left + toleranciaX < obsRect.right) && (pigRect.right - toleranciaX > obsRect.left);
+                const colisionY = (pigRect.top + toleranciaY < obsRect.bottom) && (pigRect.bottom - toleranciaY > obsRect.top);
+
+                if (colisionX && colisionY && !invulnerable) {
+                    if (tipoObstaculo === '❤️') {
+                        invulnerable = true;
+                        if(vidas < 5) { vidas++; }
+                        if(displayVidas) displayVidas.innerText = "❤️".repeat(vidas);
+                        if(contenedor) contenedor.classList.add('heal-flash');
+                        setTimeout(() => {
+                            if(contenedor) contenedor.classList.remove('heal-flash');
+                            invulnerable = false;
+                        }, 500);
+                    } else {
+                        invulnerable = true;
+                        vidas--;
+                        if(displayVidas) displayVidas.innerText = "❤️".repeat(vidas);
+                        pig.classList.add('hurt');
+
+                        setTimeout(() => {
+                            if(pig) pig.classList.remove('hurt');
+                            invulnerable = false;
+                        }, 700);
+
+                        if (vidas <= 0) {
+                            finalizarJuegoRunner();
+                            alert("💥 Agotamiento de reservas vitales. Reentrene el control inhibitorio.");
+                            location.reload();
+                            return;
+                        }
+                    }
+                }
+            }
+            if (juegoActivo) { loopColisionId = requestAnimationFrame(detectarColision); }
+        }
+
+        function finalizarJuegoRunner() {
+            juegoActivo = false;
+            window.removeEventListener('keydown', manejarTecladoSaltar);
+            clearInterval(intervaloTiempoId);
+            cancelAnimationFrame(loopColisionId);
+        }
+
+        function faseRecon(c) {
+            document.getElementById('titulo-tarea').innerText = "Fase de Reconocimiento Post-Interferencia";
+            
+            let opciones = [...objetivos];
+            let poolAlternativos = bancoEmojis.filter(e => !objetivos.includes(e));
+
+            while(opciones.length < c.cuadricula && poolAlternativos.length > 0) {
+                let randomIdx = Math.floor(Math.random() * poolAlternativos.length);
+                opciones.push(poolAlternativos.splice(randomIdx, 1)[0]);
+            }
+            opciones.sort(() => Math.random() - 0.5);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid-dinamico';
+            grid.style.gridTemplateColumns = `repeat(${c.cols}, 1fr)`;
+            
+            let aciertos = 0;
+            opciones.forEach(e => {
+                const box = document.createElement('div');
+                box.className = 'emoji-box'; box.innerText = e;
+                box.onclick = function() {
+                    if(objetivos.includes(e)) {
+                        if(!this.classList.contains('correct')) {
+                            this.classList.add('correct'); aciertos++;
+                            if(aciertos === objetivos.length) { 
+                                alert("🎉 Consolidación Perfecta verificada con éxito."); 
+                                location.reload(); 
+                            }
+                        }
+                    } else {
+                        this.classList.add('wrong');
+                        setTimeout(() => this.classList.remove('wrong'), 400);
+                    }
+                };
+                grid.appendChild(box);
+            });
+            document.getElementById('contenido-juego').innerHTML = '';
+            document.getElementById('contenido-juego').appendChild(grid);
+        }
+
+        function iniciarBusquedaVisual(c, lvl) {
+            let tiempoRestante = c.tiempo;
+            totalCerditosAEncontrar = 0;
+            cerditosEncontrados = 0;
+
+            document.getElementById('titulo-tarea').innerText = `Rastreo Perceptual Crítico (Nivel ${lvl}/10)`;
+            
+            document.getElementById('contenido-juego').innerHTML = `
+                <div style="display: flex; gap: 40px; justify-content: center; font-size: 1.8rem; font-weight: 700; margin-bottom: 25px; width:100%;">
+                    <div style="color:var(--danger)">Tiempo Límite: <span id="cronometro-atencion" style="color:white;">${tiempoRestante}</span>s</div>
+                    <div style="color:var(--accent-secondary)">Índice de Aciertos: <span id="contador-cerditos" style="color:white;">0</span> / <span id="total-cerditos" style="color:white;">0</span></div>
+                </div>
+                <div id="contenedor-grid-busqueda" style="width:100%; display:flex; justify-content:center;"></div>
+            `;
+
+            const grid = document.createElement('div');
+            grid.className = 'grid-dinamico';
+            grid.style.gridTemplateColumns = `repeat(${c.cols}, 1fr)`;
+
+            for(let i = 0; i < c.cuadricula; i++) {
+                const box = document.createElement('div');
+                box.className = 'emoji-box';
+                
+                // En niveles altos reducemos las dimensiones de la caja para que entren las 100 en pantalla limpia
+                if(c.cuadricula > 40){
+                    box.style.width = '65px';
+                    box.style.height = '65px';
+                    box.style.fontSize = '1.9rem';
+                }
+
+                if (Math.random() > c.prob) {
+                    box.innerText = '🐖'; // Objetivo Real Único
+                    totalCerditosAEncontrar++;
+                } else {
+                    // Decide si mete camuflaje rosa/piel o un emoji común según la tasa de mimetismo del nivel
+                    if(Math.random() < c.mimetismo) {
+                        box.innerText = bancoMimetismoRosa[Math.floor(Math.random() * bancoMimetismoRosa.length)];
+                    } else {
+                        box.innerText = bancoEmojis[Math.floor(Math.random() * bancoEmojis.length)];
+                    }
+                }
+
+                box.onclick = function() {
+                    if(box.innerText === '🐖') {
+                        if(!this.classList.contains('correct')) {
+                            this.classList.add('correct');
+                            this.innerText = '✔';
+                            cerditosEncontrados++;
+                            document.getElementById('contador-cerditos').innerText = cerditosEncontrados;
+
+                            if(cerditosEncontrados === totalCerditosAEncontrar) {
+                                clearInterval(cronometroBusquedaId);
+                                alert(`🎯 Desempeño Extraordinario. Nivel ${lvl} completado de forma impecable.`);
+                                location.reload();
+                            }
+                        }
+                    } else if (this.innerText !== '✔') {
+                        this.classList.add('wrong');
+                        setTimeout(() => this.classList.remove('wrong'), 400);
+                    }
+                };
+                grid.appendChild(box);
+            }
+
+            if(totalCerditosAEncontrar === 0) {
+                const casillas = grid.querySelectorAll('.emoji-box');
+                casillas[0].innerText = '🐖';
+                totalCerditosAEncontrar = 1;
+            }
+
+            document.getElementById('total-cerditos').innerText = totalCerditosAEncontrar;
+            document.getElementById('contenedor-grid-busqueda').appendChild(grid);
+
+            cronometroBusquedaId = setInterval(() => {
+                tiempoRestante--;
+                const elemCrono = document.getElementById('cronometro-atencion');
+                if(elemCrono) elemCrono.innerText = tiempoRestante;
+
+                if(tiempoRestante <= 0) {
+                    clearInterval(cronometroBusquedaId);
+                    document.querySelectorAll('.emoji-box').forEach(box => box.onclick = null);
+                    alert("⏱️ Umbral de tiempo agotado. La sobrecarga de distractores superó el tiempo de escaneo.");
+                    location.reload();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
